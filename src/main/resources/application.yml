@@ -1,0 +1,53 @@
+spring:
+  mvc:
+    async:
+      request-timeout: 120000
+  data:
+    redis:
+      host: 0.0.0.0
+      port: 6379
+      expiration:
+        cache:
+          minutes: 0
+  jmx:
+    enabled: false
+  main:
+    lazy-initialization: true
+
+  elasticsearch:
+    connection-timeout: 90000
+    username: elastic
+    password: CkeKw45nzruN2k43M38FaccB
+    uris:
+      - https://aec1b7fd117d4c42af5c5bb8472b310f.us-central1.gcp.cloud.es.io/
+
+management:
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: prometheus
+
+  # default file path
+  paths:
+    upload: uploads
+
+server:
+  jetty:
+    connection-idle-timeout: 120000
+  netty:
+    idle-timeout: 120000
+    max-keep-alive-requests: 12
+    connection-timeout: 120000
+
+
+#    server:
+#      netty:
+#        read-timeout: 60000
+#        write-timeout: 60000
+
+
