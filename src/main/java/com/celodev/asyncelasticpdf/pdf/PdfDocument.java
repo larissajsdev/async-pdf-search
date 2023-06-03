@@ -16,12 +16,18 @@ import java.util.List;
 @AllArgsConstructor
 @Document(indexName = "e-index-pdf")
 public class PdfDocument {
-    private String id;
-    @Field(type = FieldType.Nested, includeInParent = true)
-    private List<PageDocument> pageDocuments;
+  private String id;
+  private String title;
 
-    public PdfDocument(List<PageDocument> documents) {
-        this.pageDocuments = documents;
-    }
+  @Field(type = FieldType.Nested, includeInParent = true)
+  private List<PageDocument> pageDocuments;
+
+  public PdfDocument(List<PageDocument> pageDocuments) {
+    this.pageDocuments = pageDocuments;
+  }
+
+  public PdfDocument(String filename) {
+    this.title = filename;
+  }
 
 }

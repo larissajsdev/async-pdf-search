@@ -8,7 +8,7 @@ spring:
       port: 6379
       expiration:
         cache:
-          minutes: 0
+          minutes: 2
   jmx:
     enabled: false
   main:
@@ -20,6 +20,7 @@ spring:
     password: CkeKw45nzruN2k43M38FaccB
     uris:
       - https://aec1b7fd117d4c42af5c5bb8472b310f.us-central1.gcp.cloud.es.io/
+    indexName: e-index-pdf
 
 management:
   endpoint:
@@ -44,10 +45,8 @@ server:
     max-keep-alive-requests: 12
     connection-timeout: 120000
 
-
 #    server:
 #      netty:
 #        read-timeout: 60000
 #        write-timeout: 60000
-
 

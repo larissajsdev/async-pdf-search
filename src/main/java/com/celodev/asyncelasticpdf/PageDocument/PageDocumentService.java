@@ -1,13 +1,13 @@
 package com.celodev.asyncelasticpdf.PageDocument;
 
+import com.celodev.asyncelasticpdf.Edition.Edition;
 import com.celodev.asyncelasticpdf.File.FileService;
-import com.celodev.asyncelasticpdf.pdf.PdfReaderService;
+import com.celodev.asyncelasticpdf.PdfReader.PdfReaderService;
+import com.celodev.asyncelasticpdf.configurations.ChatMessageProcessor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,30 +19,44 @@ public class PageDocumentService {
   private final PageDocumentRepository repository;
   private final PdfReaderService pdfReaderService;
   private final FileService fileService;
+  private final ChatMessageProcessor chatMessageProcessor;
 
 
-  public Mono<Void> indexPageDocuments(Mono<FilePart> filePartMono) {
-    return filePartMono.flatMap(fileService::saveFile)
+  public Mono<Void> indexPageDocuments2(File file) {
+    return Mono.just(file)
       .flatMapMany(this::toPageDocuments)
-      .flatMap(repository::save)
-      .subscribeOn(Schedulers.boundedElastic())
+      .buffer()
+      .flatMap(repository::saveAll)
+      .doOnNext(pageDocument -> chatMessageProcessor.broadcastMessage(pageDocument.getId()))
       .then();
   }
 
-  private Flux<PageDocument> toPageDocuments(File file) {
+  public Mono<Void> indexPageDocuments(File File) {
+    return Mono.just(File)
+      .flatMap(this::toEdition)
+      .flatMapMany(Edition::getPageDocuments)
+      .map(e -> new PageDocument(e.getPage(), e.getPublishDate(), e.getType(), e.getContent()))
+      .buffer()
+      .flatMap(repository::saveAll)
+      .doOnNext(pageDocument -> chatMessageProcessor.broadcastMessage(pageDocument.getId()))
+      .then();
+  }
+
+  public Flux<PageDocument> toPageDocuments(File file) {
     return Mono.fromCallable(() -> file)
       .flatMap(pdfReaderService::toPDFReader)
-      .flatMapMany(pdfReaderService::processPdfPages)
-      .map(PageDocument::new)
-      .subscribeOn(Schedulers.boundedElastic())
-      ;
+      .flatMapMany(pdfReaderService::processPdfPages);
+  }
+
+
+  public Mono<Edition> toEdition(File file) {
+    return Mono.fromCallable(() -> file)
+      .map(Edition::new);
   }
 
   public Mono<Void> indexAllPageDocuments() throws IOException {
     return Flux.fromStream(fileService.loadAll())
-      .flatMap(this::toPageDocuments)
-      .buffer(50)
-      .flatMap(repository::saveAll)
+      .flatMap(this::indexPageDocuments)
       .then();
   }
 

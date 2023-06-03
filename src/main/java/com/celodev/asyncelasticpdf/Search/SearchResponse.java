@@ -1,6 +1,6 @@
 package com.celodev.asyncelasticpdf.Search;
 
-import com.celodev.asyncelasticpdf.pdf.PdfDocument;
+import com.celodev.asyncelasticpdf.PageDocument.PageDocument;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,10 +16,14 @@ import java.util.List;
 public class SearchResponse {
 
   private String id;
+  private int page;
   private List<String> highlights;
 
-  public SearchResponse(SearchHit<PdfDocument> searchHit) {
+  public SearchResponse(SearchHit<PageDocument> searchHit) {
     this.id = searchHit.getId();
-    this.highlights = searchHit.getHighlightFields().get("pageDocuments.content");
+    this.page = searchHit.getContent().getPage();
+    this.highlights = searchHit.getHighlightFields().get("content");
   }
+
+
 }

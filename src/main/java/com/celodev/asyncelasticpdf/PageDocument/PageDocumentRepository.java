@@ -10,11 +10,12 @@ import reactor.core.publisher.Flux;
 
 public interface PageDocumentRepository extends ReactiveElasticsearchRepository<PageDocument, String> {
 
-  @Query("{\"match_phrase\": {\"content\": \"?0\"}}")
-  @Highlight(fields = {@HighlightField(name = "content")})
-  Flux<SearchHit<PageDocument>> findByContentPhraseQuery(String query, Pageable pageable);
 
   @Highlight(fields = {@HighlightField(name = "content")})
   Flux<SearchHit<PageDocument>> findByContent(String query, Pageable pageable);
+
+  @Query("{\"match_phrase\": {\"content\": \"?0\"}}")
+  @Highlight(fields = {@HighlightField(name = "content")})
+  Flux<SearchHit<PageDocument>> findByContentPhraseQuery(String query, Pageable pageable);
 
 }
